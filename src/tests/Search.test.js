@@ -1,8 +1,11 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import SearchPage from '../pages/SearchPage';
-import { AuthProvider } from '../context/AuthContext';
+import React from 'react';
+import { screen, fireEvent, waitFor, render } from '@testing-library/react';
+import { renderWithRouter } from '../test-utils';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { SearchPage } from '../pages/SearchPage';
+import { AuthProvider } from '../context/AuthContext.js';
 import * as pokemonService from '../api/pokemonService';
+import { LoginPage } from '../pages/LoginPage.js';
 
 jest.mock('../api/pokemonService');
 
@@ -17,7 +20,7 @@ describe('Search Page', () => {
   test('fetches and displays Pokemon list', async () => {
     pokemonService.getPokemons.mockResolvedValue(mockPokemons);
 
-    render(<SearchPage />);
+    renderWithRouter(<SearchPage />);
 
     await waitFor(() => {
       expect(screen.getByText(/pikachu/i)).toBeInTheDocument();
@@ -29,7 +32,7 @@ describe('Search Page', () => {
   test('filters Pokémon list based on search input', async () => {
     pokemonService.getPokemons.mockResolvedValue(mockPokemons);
 
-    render(<SearchPage />);
+    renderWithRouter(<SearchPage />);
     // Wait for the Pokémon list to load
     await waitFor(() => {
       expect(screen.getByText(/pikachu/i)).toBeInTheDocument();
@@ -49,7 +52,7 @@ describe('Search Page', () => {
   test('shows no pokemons found if no Pokémon match search', async () => {
     pokemonService.getPokemons.mockResolvedValue(mockPokemons);
 
-    render(<SearchPage />);
+    renderWithRouter(<SearchPage />);
 
     // Type a non-matching query
     fireEvent.change(screen.getByPlaceholderText(/search/i), { target: { value: 'xyz' } });
@@ -64,7 +67,7 @@ describe('Search Page', () => {
   });
 
   test('redirects to Login if accessing while not logged in', () => {
-    storage.getAuth.mockReturnValue(null); // No logged-in user
+    jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
 
     render(
       <AuthProvider>
@@ -78,5 +81,7 @@ describe('Search Page', () => {
     );
 
     expect(window.location.pathname).toBe('/login');
+
+    jest.restoreAllMocks();
   });
 });

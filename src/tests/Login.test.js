@@ -1,11 +1,14 @@
-import { render, screen, fireEvent } from '@testing-library/react';
-import { MemoryRouter } from 'react-router-dom';
-import LoginPage from '../pages/LoginPage';
-import { AuthProvider } from '../context/AuthContext';
+import React from 'react';
+import { screen, fireEvent, render } from '@testing-library/react';
+import { renderWithRouter } from '../test-utils';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { LoginPage } from '../pages/LoginPage';
+import { AuthProvider } from '../context/AuthContext.js';
+import { SearchPage } from '../pages/SearchPage.js';
 
 describe('Login Page', () => {
   test('shows empty fields on initial load', () => {
-    render(<LoginPage />);
+    renderWithRouter(<LoginPage />);
 
     expect(screen.getByPlaceholderText(/username/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument();
@@ -15,7 +18,7 @@ describe('Login Page', () => {
   });
 
   test('shows error if fields are empty on login', () => {
-    render(<LoginPage />);
+    renderWithRouter(<LoginPage />);
 
     fireEvent.click(screen.getByText(/login/i));
     expect(screen.getByText(/username is required/i)).toBeInTheDocument();
@@ -23,7 +26,7 @@ describe('Login Page', () => {
   });
 
   test('shows error if credentials are incorrect', () => {
-    render(<LoginPage />);
+    renderWithRouter(<LoginPage />);
 
     fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'wrong' } });
     fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'wrong' } });
@@ -33,10 +36,12 @@ describe('Login Page', () => {
   });
 
   test('logs in and redirects on correct credentials, saves to local storage, and clears errors', () => {
+    jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
+
     // Mock localStorage setItem
     const setItemMock = jest.spyOn(Storage.prototype, 'setItem');
 
-    render(<LoginPage />);
+    renderWithRouter(<LoginPage />);
 
     fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'admin' } });
     fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'admin' } });
@@ -49,11 +54,17 @@ describe('Login Page', () => {
 
     expect(screen.queryByText(/invalid credentials/i)).not.toBeInTheDocument();
 
-    setItemMock.mockRestore();
+    jest.restoreAllMocks();
   });
 
-  test('redirects to Home if user is already logged in', () => {
-    storage.getAuth.mockReturnValue({ username: 'admin' });
+  test('redirects to SearchPage if user is already logged in', async () => {
+    // Mock localStorage with an authenticated user
+    jest.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
+      if (key === 'auth') {
+        return JSON.stringify({ username: 'admin' });
+      }
+      return null;
+    });
 
     render(
       <AuthProvider>
@@ -66,6 +77,9 @@ describe('Login Page', () => {
       </AuthProvider>
     );
 
-    expect(window.location.pathname).toBe('/home');
+    // Check that the current route is "/search"
+    expect(window.location.pathname).toBe('/search');
+
+    jest.restoreAllMocks();
   });
 });
