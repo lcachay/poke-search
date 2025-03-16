@@ -16,6 +16,14 @@
   justify-self: center;
 }
 
+.pokemon-list {
+  max-width: 70em;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.25em;
+}
+
 @media (min-width: 666px) {
   .card-login {
     width: 35%;

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { act } from 'react';
 import { screen, fireEvent, render, waitFor } from '@testing-library/react';
 import { renderWithRouter } from '../test-utils';
-import { createMemoryHistory } from 'history';
-
+import * as pokemonService from '../api/pokemonService';
+jest.mock('../api/pokemonService');
 describe('Login Page', () => {
   test('shows empty fields on initial load', () => {
     renderWithRouter('/login');
@@ -42,8 +42,9 @@ describe('Login Page', () => {
 
     fireEvent.change(screen.getByPlaceholderText(/username/i), { target: { value: 'admin' } });
     fireEvent.change(screen.getByPlaceholderText(/password/i), { target: { value: 'admin' } });
-
-    fireEvent.click(screen.getByText(/login/i));
+    await act(async () => {
+      fireEvent.click(screen.getByText(/login/i));
+    });
 
     expect(screen.queryByText(/invalid credentials/i)).not.toBeInTheDocument();
     expect(setItemMock).toHaveBeenCalledWith('auth', '{"username":"admin"}');

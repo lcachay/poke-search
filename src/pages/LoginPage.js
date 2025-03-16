@@ -21,7 +21,6 @@ const LoginPage = () => {
 
     try {
       login(username, password);
-      console.log('Navigating to /search...');
       navigate('/search');
     } catch (error) {
       setError(error.message);

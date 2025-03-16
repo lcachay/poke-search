@@ -9,14 +9,36 @@ import LoginPage from '../pages/LoginPage.js';
 
 jest.mock('../api/pokemonService');
 
-const mockPokemons = {
-  results: [
-    { name: 'pikachu', url: 'https://pokeapi.co/api/v2/pokemon/25/' },
-    { name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1/' },
-  ],
-};
+const mockPokemons = [
+  { name: 'pikachu', imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png' },
+  { name: 'bulbasaur', imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png' },
+  { name: 'charmander', imgUrl: 'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/4.png' },
+];
 
 describe('Search Page', () => {
+  beforeEach(() => {
+    // Mock localStorage with the auth data
+    jest.spyOn(Storage.prototype, 'getItem').mockImplementation((key) => {
+      if (key === 'auth') {
+        return '{"username":"admin"}';
+      }
+      return null;
+    });
+  });
+  pokemonService.getPokemonsNames.mockResolvedValue(['pikachu', 'bulbasaur', 'charmander']);
+
+  // Mock searchPokemon API call
+  pokemonService.searchPokemon.mockImplementation(async (name) => {
+    const pokemons = {
+      pikachu: { name: 'pikachu', imgUrl: 'https://some-url.com/pikachu.png' },
+    };
+    return pokemons[name] || null;
+  });
+
+  afterEach(() => {
+    // Restore all mocks after each test
+    jest.restoreAllMocks();
+  });
   test('fetches and displays Pokemon list', async () => {
     pokemonService.getPokemons.mockResolvedValue(mockPokemons);
 
@@ -56,11 +78,11 @@ describe('Search Page', () => {
     renderWithRouter('/search');
 
     // Type a non-matching query
-    fireEvent.change(screen.getByPlaceholderText(/search/i), { target: { value: 'xyz' } });
+    fireEvent.change(screen.getByPlaceholderText(/search/i), { target: { value: 'nothing' } });
 
     // Expect empty state message
     await waitFor(() => {
-      expect(screen.getByText(/no pokémon found/i)).toBeInTheDocument();
+      expect(screen.getByText(/no pokémons found/i)).toBeInTheDocument();
       expect(screen.queryByText(/pikachu/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/bulbasaur/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/charmander/i)).not.toBeInTheDocument();

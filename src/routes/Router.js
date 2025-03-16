@@ -15,6 +15,13 @@ export const PublicRoute = () => {
   return auth ? <Navigate to="/search" replace /> : <Outlet />;
 };
 
+const Logout = () => {
+  const { logout } = useAuth();
+  logout();
+
+  return <Navigate to="/" replace />;
+};
+
 const Router = () => {
   return (
     <BrowserRouter>
@@ -25,6 +32,7 @@ const Router = () => {
         </Route>
         <Route element={<PrivateRoute />}>
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/logout" element={<Logout />} />
         </Route>
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
