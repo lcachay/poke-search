@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import SearchPage from './pages/SearchPage';
 
-export const Router = () => {
+export default Router = () => {
   return (
     <BrowserRouter>
       <Routes>

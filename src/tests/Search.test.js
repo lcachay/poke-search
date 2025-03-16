@@ -2,10 +2,10 @@ import React from 'react';
 import { screen, fireEvent, waitFor, render } from '@testing-library/react';
 import { renderWithRouter } from '../test-utils';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { SearchPage } from '../pages/SearchPage';
+import SearchPage from '../pages/SearchPage';
 import { AuthProvider } from '../context/AuthContext.js';
 import * as pokemonService from '../api/pokemonService';
-import { LoginPage } from '../pages/LoginPage.js';
+import LoginPage from '../pages/LoginPage.js';
 
 jest.mock('../api/pokemonService');
 

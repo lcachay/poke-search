@@ -2,9 +2,9 @@ import React from 'react';
 import { screen, fireEvent, render } from '@testing-library/react';
 import { renderWithRouter } from '../test-utils';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { LoginPage } from '../pages/LoginPage';
+import LoginPage from '../pages/LoginPage';
 import { AuthProvider } from '../context/AuthContext.js';
-import { SearchPage } from '../pages/SearchPage.js';
+import SearchPage from '../pages/SearchPage.js';
 
 describe('Login Page', () => {
   test('shows empty fields on initial load', () => {

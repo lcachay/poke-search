@@ -1,5 +1,5 @@
 import React from 'react';
 
-export const PokeDetailsModal = () => {
+export default PokeDetailsModal = ({ pokemon, isOpen, onClose }) => {
   return <div>PokeDetailsModal</div>;
 };

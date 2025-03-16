@@ -1,8 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { PokeDetailsModal } from '../components/PokeDetailsModal';
+import PokeDetailsModal from '../components/PokeDetailsModal';
 import * as pokemonService from '../api/pokemonService';
-import { SearchPage } from '../pages/SearchPage';
 
 jest.mock('../api/pokemonService');
 
@@ -17,7 +16,7 @@ describe('Pokemon Details Modal', () => {
   test('fetches and displays Pokemon details', async () => {
     pokemonService.getPokemon.mockResolvedValue(mockPokemonDetail);
 
-    render(<SearchPage />);
+    render(<PokeDetailsModal pokemonId="25" isOpen={true} onClose={handleClose} />);
 
     await waitFor(() => expect(screen.getByText(/pikachu/i)).toBeInTheDocument());
     expect(screen.getByText(/static/i)).toBeInTheDocument();
