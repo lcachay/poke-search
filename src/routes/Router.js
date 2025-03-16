@@ -3,15 +3,16 @@ import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom
 import LoginPage from '../pages/LoginPage';
 import SearchPage from '../pages/SearchPage';
 import { useAuth } from '../context/AuthContext';
+import NotFoundPage from '../pages/NotFoundPage';
 
-const PrivateRoute = () => {
-  const { user } = useAuth();
-  return user ? <Outlet /> : <Navigate to="/login" replace />;
+export const PrivateRoute = () => {
+  const { auth } = useAuth();
+  return auth ? <Outlet /> : <Navigate to="/login" replace />;
 };
 
-const PublicRoute = () => {
-  const { user } = useAuth();
-  return user ? <Navigate to="/search" replace /> : <Outlet />;
+export const PublicRoute = () => {
+  const { auth } = useAuth();
+  return auth ? <Navigate to="/search" replace /> : <Outlet />;
 };
 
 const Router = () => {
@@ -25,6 +26,7 @@ const Router = () => {
         <Route element={<PrivateRoute />}>
           <Route path="/search" element={<SearchPage />} />
         </Route>
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </BrowserRouter>
   );

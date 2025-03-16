@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+@plugin "daisyui" {
+  themes: all;
+}
+
+.hero-background-image {
+  background-size: auto 100%;
+  background-repeat: no-repeat;
+  background-position: right center;
+  background-image: url('./assets/pikachu background.png');
+}
+
+.card-login {
+  margin: auto;
+  width: 80%;
+  justify-self: center;
+}
+
+@media (min-width: 666px) {
+  .card-login {
+    width: 35%;
+    min-width: 30em;
+    margin-left: 16%;
+    justify-self: left;
+  }
+}

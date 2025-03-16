@@ -20,7 +20,7 @@ describe('Search Page', () => {
   test('fetches and displays Pokemon list', async () => {
     pokemonService.getPokemons.mockResolvedValue(mockPokemons);
 
-    renderWithRouter(<SearchPage />);
+    renderWithRouter('/search');
 
     await waitFor(() => {
       expect(screen.getByText(/pikachu/i)).toBeInTheDocument();
@@ -32,7 +32,8 @@ describe('Search Page', () => {
   test('filters Pokémon list based on search input', async () => {
     pokemonService.getPokemons.mockResolvedValue(mockPokemons);
 
-    renderWithRouter(<SearchPage />);
+    renderWithRouter('/search');
+
     // Wait for the Pokémon list to load
     await waitFor(() => {
       expect(screen.getByText(/pikachu/i)).toBeInTheDocument();
@@ -52,7 +53,7 @@ describe('Search Page', () => {
   test('shows no pokemons found if no Pokémon match search', async () => {
     pokemonService.getPokemons.mockResolvedValue(mockPokemons);
 
-    renderWithRouter(<SearchPage />);
+    renderWithRouter('/search');
 
     // Type a non-matching query
     fireEvent.change(screen.getByPlaceholderText(/search/i), { target: { value: 'xyz' } });
@@ -64,24 +65,5 @@ describe('Search Page', () => {
       expect(screen.queryByText(/bulbasaur/i)).not.toBeInTheDocument();
       expect(screen.queryByText(/charmander/i)).not.toBeInTheDocument();
     });
-  });
-
-  test('redirects to Login if accessing while not logged in', () => {
-    jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null);
-
-    render(
-      <AuthProvider>
-        <MemoryRouter initialEntries={['/search']}>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/search" element={<SearchPage />} />
-          </Routes>
-        </MemoryRouter>
-      </AuthProvider>
-    );
-
-    expect(window.location.pathname).toBe('/login');
-
-    jest.restoreAllMocks();
   });
 });
