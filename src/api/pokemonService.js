@@ -50,3 +50,13 @@ export const searchPokemon = async (name) => {
     imgUrl: pokemon.sprites?.front_default,
   };
 };
+
+export const getFormsData = async (forms) => {
+  const formsData = await Promise.all(forms.map(async (form) => await fetchData(form.url)));
+  return formsData;
+};
+
+export const getMovesData = async (moves) => {
+  const MovesData = await Promise.all(moves.map(async (move) => await fetchData(move.move.url)));
+  return MovesData;
+};

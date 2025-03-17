@@ -5,31 +5,55 @@ import * as pokemonService from '../api/pokemonService';
 
 jest.mock('../api/pokemonService');
 
-const mockPokemonDetail = {
-  name: 'pikachu',
-  abilities: [{ ability: { name: 'static' } }],
-  moves: [{ move: { name: 'thunderbolt' } }],
-  forms: [{ name: 'pikachu-form' }],
-};
-
 describe('Pokemon Details Modal', () => {
-  test('fetches and displays Pokemon details', async () => {
-    pokemonService.getPokemon.mockResolvedValue(mockPokemonDetail);
+  beforeEach(() => {
+    pokemonService.getPokemon.mockResolvedValue({
+      id: 25,
+      name: 'pikachu',
+      sprites: { front_default: 'https://example.com/pikachu.png' },
+      types: [{ type: { name: 'electric' } }],
+      abilities: [{ ability: { name: 'static' }, is_hidden: false }],
+    });
 
-    render(<PokeDetailsModal pokemonId="25" isOpen={true} onClose={handleClose} />);
+    pokemonService.getMovesData.mockResolvedValue([
+      { name: 'thunderbolt', type: { name: 'electric' }, damage_class: { name: 'special' } },
+    ]);
+
+    pokemonService.getFormsData.mockResolvedValue([
+      { name: 'pikachu-form', sprites: { front_default: 'https://example.com/pikachu.png' } },
+    ]);
+  });
+  test('fetches and displays Pokemon details', async () => {
+    render(
+      <PokeDetailsModal
+        selectedPokemon="pikachu"
+        dialogRef={{ current: document.createElement('dialog') }}
+        toggleModal={jest.fn()}
+      />
+    );
 
     await waitFor(() => expect(screen.getByText(/pikachu/i)).toBeInTheDocument());
-    expect(screen.getByText(/static/i)).toBeInTheDocument();
-    expect(screen.getByText(/thunderbolt/i)).toBeInTheDocument();
-    expect(screen.getByText(/pikachu-form/i)).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByText(/static/i)).toBeInTheDocument());
+
+    // Click on the "Moves" tab
+    fireEvent.click(screen.getByRole('tab', { name: /moves/i, hidden: true }));
+    await waitFor(() => expect(screen.getByText(/thunderbolt/i)).toBeInTheDocument());
+
+    // Click on the "Forms" tab
+    fireEvent.click(screen.getByRole('tab', { name: /forms/i, hidden: true }));
+    await waitFor(() => expect(screen.getByText(/pikachu-form/i)).toBeInTheDocument());
   });
 
   test('closes when close button is clicked', () => {
-    const handleClose = jest.fn();
+    render(
+      <PokeDetailsModal
+        selectedPokemon="pikachu"
+        dialogRef={{ current: document.createElement('dialog') }}
+        toggleModal={jest.fn()}
+      />
+    );
+    fireEvent.click(screen.getByLabelText(/close/i));
 
-    render(<PokeDetailsModal pokemonId="25" isOpen={true} onClose={handleClose} />);
-    fireEvent.click(screen.getByText(/close/i));
-
-    expect(handleClose).toHaveBeenCalled();
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

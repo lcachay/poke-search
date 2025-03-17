@@ -23,6 +23,12 @@
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.25em;
 }
+.moves-grid {
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 2em;
+}
 
 @media (min-width: 666px) {
   .card-login {

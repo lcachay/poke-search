@@ -1,21 +1,24 @@
 'use client';
 
-import React, { useState, useTransition, useCallback, useEffect } from 'react';
+import React, { useState, useTransition, useCallback, useEffect, useRef } from 'react';
 import avatar from '../assets/avatar.png';
 import { useNavigate } from 'react-router-dom';
 import { getPokemons, getPokemonsNames, searchPokemon } from '../api/pokemonService';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
+import PokeDetailsModal from '../components/PokeDetailsModal';
 
 const SearchPage = () => {
   const navigate = useNavigate();
   const [pokemonList, setPokemonList] = useState([]);
   const [pokemonNames, setPokemonNames] = useState([]);
   const [filteredPokemons, setFilteredPokemons] = useState([]);
-  const [openDetailsModal, setOpenDetailsModal] = useState(false);
   const [offset, setOffset] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isPending, startTransition] = useTransition();
+
   const [selectedPokemon, setSelectedPokemon] = useState(null);
+  const [openDetailsModal, setOpenDetailsModal] = useState(false);
+  const dialogRef = useRef(null);
 
   useEffect(() => {
     async function loadData() {
@@ -72,6 +75,16 @@ const SearchPage = () => {
 
   const [setLastElement] = useInfiniteScroll(loadMore, hasMore);
 
+  const toggleModal = (pokemon) => {
+    setSelectedPokemon(pokemon.name ?? null);
+    if (openDetailsModal) {
+      dialogRef.current?.close();
+    } else {
+      dialogRef.current?.showModal();
+    }
+    setOpenDetailsModal((prev) => !prev);
+  };
+
   return (
     <div>
       {/* Navbar */}
@@ -123,10 +136,7 @@ const SearchPage = () => {
           {filteredPokemons?.map((pokemon, index) => (
             <div
               key={index}
-              onClick={() => {
-                setOpenDetailsModal(true);
-                setSelectedPokemon(pokemon.name);
-              }}
+              onClick={() => toggleModal(pokemon)}
               className="card shadow-sm rounded-md hover:scale-105"
               ref={index === filteredPokemons.length - 1 ? setLastElement : null}
             >
@@ -138,13 +148,15 @@ const SearchPage = () => {
                 )}
               </figure>
               <div className="card-body m-auto">
-                <p className="card-title m-auto">{pokemon.name}</p>
+                <p className="card-title m-auto capitalize">{pokemon.name}</p>
               </div>
             </div>
           ))}
-          {filteredPokemons.length <= 0 && <p className="m-auto">No Pokémons Found</p>}
+          {filteredPokemons?.length <= 0 && <p className="m-auto">No Pokémons Found</p>}
         </div>
       </div>
+
+      <PokeDetailsModal selectedPokemon={selectedPokemon} toggleModal={toggleModal} dialogRef={dialogRef} />
     </div>
   );
 };
