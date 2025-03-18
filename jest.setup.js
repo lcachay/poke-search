@@ -18,3 +18,15 @@ global.IntersectionObserver = class {
     return null;
   }
 };
+
+beforeAll(() => {
+  global.HTMLDialogElement = class extends HTMLElement {
+    showModal = jest.fn();
+    close = jest.fn();
+  };
+});
+
+afterAll(() => {
+  // Clean up the global mock after all tests
+  delete global.HTMLDialogElement;
+});

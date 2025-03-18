@@ -1,14 +1,15 @@
 'use client';
 
-import React, { useState, useTransition, useCallback, useEffect, useRef } from 'react';
-import avatar from '../assets/avatar.png';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useTransition, useCallback, useEffect } from 'react';
 import { getPokemons, getPokemonsNames, searchPokemon } from '../api/pokemonService';
 import useInfiniteScroll from '../hooks/useInfiniteScroll';
-import PokeDetailsModal from '../components/PokeDetailsModal';
+import Navbar from '../components/Navbar';
+import Searchbar from '../components/Searchbar';
+import PokemonCard from '../components/PokemonCard';
+import Modal from '../components/Modal';
+import PokeDetails from '../components/PokeDetails';
 
 const SearchPage = () => {
-  const navigate = useNavigate();
   const [pokemonList, setPokemonList] = useState([]);
   const [pokemonNames, setPokemonNames] = useState([]);
   const [filteredPokemons, setFilteredPokemons] = useState([]);
@@ -18,24 +19,23 @@ const SearchPage = () => {
 
   const [selectedPokemon, setSelectedPokemon] = useState(null);
   const [openDetailsModal, setOpenDetailsModal] = useState(false);
-  const dialogRef = useRef(null);
 
   useEffect(() => {
     async function loadData() {
       const pokemons = await getPokemons();
-      const names = await getPokemonsNames();
-      startTransition(() => {
+      startTransition(async () => {
+        const names = await getPokemonsNames();
         setPokemonList(pokemons);
         setFilteredPokemons(pokemons);
         setPokemonNames(names);
       });
     }
-    startTransition(() => {
-      loadData();
-    });
+    loadData();
   }, []);
 
+  // Infinite scroll
   const loadMore = useCallback(() => {
+    if (isPending) return;
     startTransition(async () => {
       const nextOffset = offset + 20;
 
@@ -52,10 +52,13 @@ const SearchPage = () => {
         console.error('Error loading more Pokémon:', error);
       }
     });
-  }, [offset]);
+  }, [offset, isPending]);
 
+  const [setLastElement] = useInfiniteScroll(loadMore, hasMore);
+
+  // Search section
   const handleSearch = (e) => {
-    const value = e.target.value;
+    const value = e.target.value.trim();
 
     startTransition(async () => {
       if (value === '') {
@@ -73,90 +76,46 @@ const SearchPage = () => {
     });
   };
 
-  const [setLastElement] = useInfiniteScroll(loadMore, hasMore);
-
-  const toggleModal = (pokemon) => {
-    setSelectedPokemon(pokemon.name ?? null);
-    if (openDetailsModal) {
-      dialogRef.current?.close();
-    } else {
-      dialogRef.current?.showModal();
-    }
-    setOpenDetailsModal((prev) => !prev);
+  // Modal section
+  const openModal = (pokemon) => {
+    setSelectedPokemon(pokemon);
+    setOpenDetailsModal(true);
+  };
+  const closeModal = () => {
+    setSelectedPokemon(null);
+    setOpenDetailsModal(false);
   };
 
   return (
     <div>
       {/* Navbar */}
-      <div className="navbar bg-neutral shadow-sm">
-        <div className="flex-1">
-          <a onClick={() => navigate('/')} className="btn btn-ghost text-xl text-base-100">
-            POKE-SEARCH
-          </a>
-        </div>
-        <div className="flex gap-2">
-          <div className="dropdown dropdown-end">
-            <div tabIndex={0} role="button" className="btn btn-ghost btn-circle avatar">
-              <div className="w-10 rounded-full">
-                <img alt="Tailwind CSS Navbar component" className="bg-base-100" src={avatar} />
-              </div>
-            </div>
-            <ul
-              tabIndex={0}
-              className="menu menu-sm dropdown-content bg-base-100 rounded-box z-10 mt-3 w-52 p-2 shadow"
-            >
-              <li>
-                <a onClick={() => navigate('/logout')}>Logout</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
+      <Navbar />
       <div className="m-auto container px-4 mt-20">
-        <div className="flex justify-center mb-8">
-          <label className="input w-full max-w-md flex items-center gap-2">
-            <svg className="h-[1em] opacity-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-              <g strokeLinejoin="round" strokeLinecap="round" strokeWidth="2.5" fill="none" stroke="currentColor">
-                <circle cx="11" cy="11" r="8"></circle>
-                <path d="m21 21-4.3-4.3"></path>
-              </g>
-            </svg>
-            <input
-              onChange={handleSearch}
-              type="search"
-              placeholder="Search for your pokémon!"
-              className="input input-bordered w-full"
-            />
-            {isPending && <span className="loading loading-ball loading-lg"></span>}
-          </label>
-        </div>
+        <Searchbar handleSearch={handleSearch} isPending={isPending} />
 
         <div className="pokemon-list">
           {filteredPokemons?.map((pokemon, index) => (
-            <div
+            <PokemonCard
               key={index}
-              onClick={() => toggleModal(pokemon)}
-              className="card shadow-sm rounded-md hover:scale-105"
+              pokemon={pokemon}
+              index={index}
+              isPending={isPending}
+              onClick={() => openModal(pokemon)}
               ref={index === filteredPokemons.length - 1 ? setLastElement : null}
-            >
-              <figure className="bg-slate-300">
-                {isPending || !pokemon.imgUrl ? (
-                  <div className="skeleton h-50 w-full"></div>
-                ) : (
-                  <img className="w-full" src={pokemon.imgUrl} alt={pokemon.name} />
-                )}
-              </figure>
-              <div className="card-body m-auto">
-                <p className="card-title m-auto capitalize">{pokemon.name}</p>
-              </div>
-            </div>
+            />
           ))}
           {filteredPokemons?.length <= 0 && <p className="m-auto">No Pokémons Found</p>}
         </div>
       </div>
-
-      <PokeDetailsModal selectedPokemon={selectedPokemon} toggleModal={toggleModal} dialogRef={dialogRef} />
+      {openDetailsModal && (
+        <Modal
+          title={`#${selectedPokemon?.id} - ${selectedPokemon?.name}`}
+          isOpen={openDetailsModal}
+          onClose={closeModal}
+        >
+          <PokeDetails selectedPokemon={selectedPokemon?.name} />
+        </Modal>
+      )}
     </div>
   );
 };

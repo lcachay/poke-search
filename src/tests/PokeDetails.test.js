@@ -1,11 +1,11 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import PokeDetailsModal from '../components/PokeDetailsModal';
 import * as pokemonService from '../api/pokemonService';
+import PokeDetails from '../components/PokeDetails';
 
 jest.mock('../api/pokemonService');
 
-describe('Pokemon Details Modal', () => {
+describe('Pokemon Details', () => {
   beforeEach(() => {
     pokemonService.getPokemon.mockResolvedValue({
       id: 25,
@@ -24,15 +24,8 @@ describe('Pokemon Details Modal', () => {
     ]);
   });
   test('fetches and displays Pokemon details', async () => {
-    render(
-      <PokeDetailsModal
-        selectedPokemon="pikachu"
-        dialogRef={{ current: document.createElement('dialog') }}
-        toggleModal={jest.fn()}
-      />
-    );
+    render(<PokeDetails selectedPokemon="pikachu" />);
 
-    await waitFor(() => expect(screen.getByText(/pikachu/i)).toBeInTheDocument());
     await waitFor(() => expect(screen.getByText(/static/i)).toBeInTheDocument());
 
     // Click on the "Moves" tab
@@ -42,18 +35,5 @@ describe('Pokemon Details Modal', () => {
     // Click on the "Forms" tab
     fireEvent.click(screen.getByRole('tab', { name: /forms/i, hidden: true }));
     await waitFor(() => expect(screen.getByText(/pikachu-form/i)).toBeInTheDocument());
-  });
-
-  test('closes when close button is clicked', () => {
-    render(
-      <PokeDetailsModal
-        selectedPokemon="pikachu"
-        dialogRef={{ current: document.createElement('dialog') }}
-        toggleModal={jest.fn()}
-      />
-    );
-    fireEvent.click(screen.getByLabelText(/close/i));
-
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });

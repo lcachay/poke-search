@@ -28,6 +28,7 @@ export const getPokemons = async (offset = 0, limit = 20) => {
     data.results.map(async (pokemon) => {
       const pokemonData = await fetchData(pokemon.url);
       return {
+        id: pokemonData.id,
         name: pokemon.name,
         imgUrl: pokemonData.sprites.front_default,
       };
@@ -46,6 +47,7 @@ export const getPokemonsNames = async () => {
 export const searchPokemon = async (name) => {
   const pokemon = await getPokemon(name.toLowerCase());
   return {
+    id: pokemon.id,
     name: pokemon.name,
     imgUrl: pokemon.sprites?.front_default,
   };

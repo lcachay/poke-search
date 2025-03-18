@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/lcachay/poke-search#readme",
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
     "@tailwindcss/cli": "^4.0.14",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
