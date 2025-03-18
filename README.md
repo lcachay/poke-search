@@ -35,7 +35,7 @@ After reviewing the project requirements, I created a set of test cases separate
 
 After having a more clear idea on what the page should do, I started thinking on what it could look like. I created a wireframe to plan the layout and functionality of the application. I used [Figma](https://www.figma.com/proto/fwovNIF8WLpQlMZQNk5GLD/poke-search?node-id=1-6&p=f&t=8akNGQzfMHggbLHx-1&scaling=min-zoom&content-scaling=fixed&page-id=0%3A1&starting-point-node-id=1%3A6&show-proto-sidebar=1) to design it.
 
-![alt text](image.png)
+![Figma Overview](./readme%20assets/figma%20overview.PNG)
 
 ### Choosing an architecture
 
@@ -53,7 +53,7 @@ I got the royalty-free illustrations in this project from https://pixabay.com.
 
 The favicon I made myself in Figma, and to generate the necessary favicon files I used https://favicon.io.
 
-![alt text](image-1.png)
+![favicon](./readme%20assets/favicon%20in%20figma.PNG)
 
 ### Challenges
 
